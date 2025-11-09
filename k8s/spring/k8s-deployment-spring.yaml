@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: spring
-          image: davinchijv/spring-k8s:2.0
+          image: davinchijv/spring-k8s:1.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
