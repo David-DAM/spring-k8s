@@ -21,11 +21,10 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: spring-config
           env:
-            - name: PROFILE
-              value: pro
-            - name: DATASOURCE_URL
-              value: jdbc:postgresql://postgres:5432/spring
             - name: DATASOURCE_USERNAME
               valueFrom:
                 secretKeyRef:
