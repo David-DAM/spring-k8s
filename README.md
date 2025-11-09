@@ -41,20 +41,20 @@ kubectl get pods -n kube-system | grep metrics-server
 
 ### 2. Configuraciones de los Archivos YAML
 
-#### Deployment `k8s-deployment.yaml`
+#### Deployment `k8s-deployment-spring.yaml`
 
 - **Imagen**: `davinchijv/spring-k8s:1.0`
 - **Puerto**: 8080
 - **Recursos**: CPU: 100m-500m, Memoria: 128Mi-200Mi
 - **Réplicas iniciales**: 1
 
-#### Service `k8s-service.yaml`
+#### Service `k8s-service-spring.yaml`
 
 - **Tipo**: LoadBalancer
 - **Puerto externo**: 80
 - **Puerto interno**: 8080
 
-#### HPA `k8s-hpa.yaml`
+#### HPA `k8s-hpa-spring.yaml`
 
 - **Rango de réplicas**: 1-4 pods
 - **Métrica**: 50% de utilización de CPU
@@ -79,15 +79,31 @@ docker push tu_usuario/spring-k8s:1.0
 
 Ejecuta los siguientes comandos en orden:
 
+#### postgres
+``` bash
+# 1. Crear el volume
+kubectl apply -f k8s-pvc-postgres.yaml
+
+# 2. Crear el secret
+kubectl apply -f k8s-secret-postgres.yaml
+
+# 3. Aplicar el deployment
+kubectl apply -f k8s-deployment-postgres.yaml
+
+# 4. Crear el servicio
+kubectl apply -f k8s-service-postgres.yaml
+```
+
+#### spring
 ``` bash
 # 1. Aplicar el deployment
-kubectl apply -f k8s-deployment.yaml
+kubectl apply -f k8s-deployment-spring.yaml
 
 # 2. Crear el servicio
-kubectl apply -f k8s-service.yaml
+kubectl apply -f k8s-service-spring.yaml
 
 # 3. Configurar el autoescalado
-kubectl apply -f k8s-hpa.yaml
+kubectl apply -f k8s-hpa-spring.yaml
 ```
 
 ### Paso 3: Verificar el Despliegue
@@ -200,21 +216,21 @@ kubectl describe service spring
 
 ### Problemas Comunes
 
-1. **El HPA no funciona**
+- **El HPA no funciona**
 
 ``` bash
    # Verificar que metrics-server esté funcionando
    kubectl get apiservice v1beta1.metrics.k8s.io -o yaml
 ```
 
-1. **Los pods no se crean**
+- **Los pods no se crean**
 
 ``` bash
    # Ver eventos del deployment
    kubectl describe deployment spring
 ```
 
-1. **No se puede acceder a la aplicación**
+- **No se puede acceder a la aplicación**
 
 ``` bash
    # Verificar el servicio
@@ -223,7 +239,7 @@ kubectl describe service spring
    minikube tunnel
 ```
 
-1. **Imagen no encontrada**
+- **Imagen no encontrada**
     - Verificar que la imagen existe en el registry
     - Comprobar la configuración de `imagePullPolicy`
 
@@ -232,9 +248,15 @@ kubectl describe service spring
 Para eliminar todos los recursos creados:
 
 ``` bash
-kubectl delete -f k8s-hpa.yaml
-kubectl delete -f k8s-service.yaml
-kubectl delete -f k8s-deployment.yaml
+kubectl delete -f k8s-hpa-spring.yaml
+kubectl delete -f k8s-service-spring.yaml
+kubectl delete -f k8s-deployment-spring.yaml
+
+kubectl delete -f k8s-service-postgres.yaml
+kubectl delete -f k8s-deployment-postgres.yaml
+kubectl delete -f k8s-secret-postgres.yaml
+kubectl delete -f k8s-pvc-postgres.yaml
+
 kubectl delete -f k8s-metric-server.yaml
 ```
 
